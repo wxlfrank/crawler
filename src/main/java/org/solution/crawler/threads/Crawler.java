@@ -164,10 +164,7 @@ public class Crawler extends AbstractThread {
 		Thread shutdown = new Thread("ShutDown") {
 			public void run() {
 				threadMessage("Preparing shutting!");
-				if (!Crawler.this.stopChildren()) {
-					threadMessage(" cannot stop child threads");
-					System.exit(0);
-				}
+				Crawler.this.stopChildren();
 				threadMessage("Save to database");
 				SQLiteService.saveStore(store);
 				threadMessage("Save to database finished");
@@ -248,20 +245,12 @@ public class Crawler extends AbstractThread {
 		new Thread(crawler, "Crawler").start();
 	}
 
-	public boolean stopChildren() {
+	public void stopChildren() {
 		urlFetcher.interrupt();
-		boolean result = true;
-		result = waitThreadFinish(urlFetcher);
-		if (result == false)
-			return false;
-		result = waitThreadFinish(contentFetcher);
-		if (result == false)
-			return false;
-		result = waitThreadFinish(urlExtractor);
-		if (result == false)
-			return false;
-		result = waitThreadFinish(contentSaver);
-		return result;
+		waitThreadFinish(urlFetcher);
+		waitThreadFinish(contentFetcher);
+		waitThreadFinish(urlExtractor);
+		waitThreadFinish(contentSaver);
 	}
 
 	public URLStore getURLStore() {

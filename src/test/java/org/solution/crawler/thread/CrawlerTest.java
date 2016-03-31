@@ -27,8 +27,7 @@ public class CrawlerTest extends TestCase {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		boolean result = crawler.stopChildren();
-		assertTrue(result);
+		crawler.stopChildren();
 		System.out.println("chilren threads are closed");
 		SQLiteService.saveStore(store);
 		URLStore new_store = new URLStore();

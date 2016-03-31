@@ -28,10 +28,13 @@ body {
 	padding: 3% 3%;
 }
 
-#usage {
+#usage, .command {
 	font-family: monospace;
 	background: #0091d2;
 	color: white;
+}
+
+#usage {
 	padding: 1em;
 }
 </style>
@@ -58,7 +61,7 @@ body {
 
 	<section>
 		<h2>Implementation</h2>
-		<figure  style="text-align: center">
+		<figure style="text-align: center">
 			<img alt="data diagram" src="concept.svg" width="90%">
 			<figcaption style="text-align: center">Figure 1 The data
 				diagram of Crawler</figcaption>
@@ -143,10 +146,18 @@ body {
 			<kbd>
 				Usage: java -jar crawler [--url url_strings+] [--file files+])<br>
 				: --url specify the initial urls to be crawled<br> : --file
-				specify the files containing the initial urls to be crawled<br> :
-				Both --url and --file parameters can be omitted except that the
+				specify the files containing the initial urls to be crawled<br>
+				: Both --url and --file parameters can be omitted except that the
 				application is run for the first time."
 			</kbd>
+		</div>
+
+		<div>
+			<h3>Source code Access</h3>
+			The source code can be accessed using of git from this repository <a
+				href="https://github.com/wxlfrank/crawler">https://github.com/wxlfrank/crawler</a>.
+			It is in a maven project. It can compiled by <span class="command">mvn
+				clean install </span>command.
 		</div>
 	</section>
 
@@ -160,14 +171,19 @@ body {
 			<li><a href="http://jsoup.org/">Jsoup</a> is used to extract
 				urls from web content. We assume that Jsoup library can efficiently
 				and correctly extract urls from web content.</li>
+			<li>The solution is tested on Windows 10 and Linux (Ubuntu)
+				systems with Java 1.8.</li>
+			<li>We assume that memory allocation always successes. In other
+				words, it means that there is always enough memory available.</li>
+			<li>We assume that the internet access is available.</li>
 		</ul>
 	</div>
 	<div>
 		<h2>Limitations and Future Improvement</h2>
 		<ul>
-			<li>In this implementation, we fetch only text-based content,
-				e.g., html, txt, xml files. For other kind of content, e.g., images,
-				video or audio, etc, we will leave this for future work.</li>
+			<li>In this implementation, we fetch text based content for http
+				or https urls. For other kind of contents and other kinds of urls,
+				we will leave this for future work.</li>
 			<li>During runtime, urls are stored in a hash map where the keys
 				are the host names of the urls. In the future, we can consider more
 				complex data structures to access and store urls more efficiently.</li>
@@ -178,8 +194,8 @@ body {
 			<li>When the program shuts down, we clear urls in the url queue
 				and waiting for other threads finishing. For content queues with
 				large size, the waiting may take longer time. In the future, we
-				should consider to offer the users with options to stop quickly. That
-				is to clean the content queues when the program shuts down.</li>
+				should consider to offer the users with options to stop quickly.
+				That is to clean the content queues when the program shuts down.</li>
 		</ul>
 	</div>
 </body>
