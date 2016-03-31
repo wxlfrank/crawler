@@ -80,9 +80,12 @@ public class URLFetcher extends AbstractThread {
 			if (interrupted) {
 				threadMessage("is going to stop!");
 				synchronized (urlQueue) {
+					if(url.isEmpty() && urlQueue.isEmpty())
+						break;
 					for (String left : urlQueue) {
-						if (!left.isEmpty())
+						if (!left.isEmpty()){
 							store.setUnvisited(left);
+						}
 					}
 					urlQueue.clear();
 				}

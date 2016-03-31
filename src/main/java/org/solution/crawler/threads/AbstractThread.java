@@ -16,7 +16,7 @@ public abstract class AbstractThread extends Thread {
 				// if(System.currentTimeMillis() - start > 200000)
 				// return false;
 				threadMessage("waiting " + thread.getName() + " to finish");
-				thread.join(WAIT_TIME);
+				thread.join(WAIT_TIME * 5);
 			} catch (InterruptedException e) {
 			}
 		}
