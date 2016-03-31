@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -59,7 +60,11 @@ public class HttpService {
 		String errorMessage = String.format("Error happens when downing content for %s!%n", url);
 		while (true) {
 			try{
-				connection = (HttpURLConnection) new URL(url).openConnection();
+				URLConnection con = new URL(url).openConnection();
+				if(con instanceof HttpURLConnection){
+					connection = (HttpURLConnection) con;
+				}else
+					return null;
 			}catch(MalformedURLException e){
 				LogService.logException(e);
 				return null;
