@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>A minimal web crawler in Java</title>
+<style type="text/css">
+h1, h2 {
+	color: #0091d2;
+	font-family: 'Open Sans' !important;
+	font-style: light;
+}
+
+* {
+	font-family: 'Open Sans' !important;
+	font-style: normal;
+}
+
+title {
+	display: block;
+}
+
+.clazz {
+	color: #0091d2;
+	font-weight: bold;
+}
+
+body {
+	padding: 3% 3%;
+}
+
+#usage {
+	font-family: monospace;
+	background: #0091d2;
+	color: white;
+	padding: 1em;
+}
+</style>
+</head>
+<body>
+	<h1>A minimal web crawler in Java</h1>
+	<section>
+		<h2>Introduction and Requirement</h2>
+		<div>
+			A minimal web crawler at its core downloads urls, discovers new urls
+			in the downloaded content and schedules download of the discovered
+			urls, i.e.,
+			<ul>
+				<li>Fetch a discovered URL</li>
+				<li>Store the content on disk</li>
+				<li>Discover new URLs by extracting URLs from the fetched
+					content and crawl these etc</li>
+			</ul>
+			The crawler should be able to resume operations if shut down.
+		</div>
+
+	</section>
+
+
+	<section>
+		<h2>Implementation</h2>
+		<figure  style="text-align: center">
+			<img alt="data diagram" src="concept.svg" width="90%">
+			<figcaption style="text-align: center">Figure 1 The data
+				diagram of Crawler</figcaption>
+		</figure>
+		<p>
+			The crawler is implemented in Java. <span class='clazz'>Crawler</span>
+			is the main class of the implementation. Its data diagram is shown in
+			Figure 1. It contains:
+		<ul>
+			<li>A <span class='clazz'>URLStore</span> used to store urls
+			</li>
+			<li>five children threads which are responsible for different
+				tasks
+				<ul>
+					<li>A <span class='clazz'>URLFetcher</span> fetches urls from
+						<span class='clazz'>URLStore</span> and puts fetched urls into a
+						url queue
+					</li>
+					<li>A <span class='clazz'>ContentFetcher</span> takes urls
+						from the url queue, downloads contents for the urls and puts the
+						downloaded contents into two content queues
+					</li>
+					<li>A <span class='clazz'>URLExtractor</span> takes contents
+						from one content queue, extracts urls from the contents and puts
+						extracted urls into <span class='clazz'>URLStore</span></li>
+					<li>A <span class='clazz'>ContentSaver</span> takes contents
+						from the other content queue and saves the contents as local files
+					</li>
+					<li>A shutdown handler thread performs the following tasks
+						when a shut down signal is issued:
+						<ul>
+							<li>Interrupt the thread <span class='clazz'>URLFetcher</span>.
+								When the thread <span class='clazz'>URLFetcher</span> receives
+								interruption, it clears the url queue, puts an empty url into
+								the url queue and stops itself
+							</li>
+							<li>When the thread <span class='clazz'>ContentFetcher</span>
+								takes the empty url from the url queue, it puts an empty content
+								into the two content queues. Then it will stop itself after all
+								its children threads finish
+							</li>
+							<li>When the thread <span class='clazz'>URLExtractor</span>
+								take the empty content from its content queue, it will stop
+								themselves after all their child threads finish
+							</li>
+							<li>Similarly, when the thread <span class='clazz'>ContentSaver</span>
+								take the empty content from its content queue, it will stop
+								themselves after all their child threads finish
+							</li>
+							<li>After all the four children threads stop, the shutdown
+								handler will save the urls in <span class='clazz'>URLStore</span>
+								into database.
+							</li>
+						</ul>
+					</li>
+				</ul> <span><strong>Note that three of the children
+						threads contain also children threads for individual tasks. For
+						example, <span class='clazz'>ContentFetcher</span> contains
+						children threads. Each children thread downloads content for a
+						given url. In this way, these children threads can be executed
+						concurrently.
+				</strong><span>
+			</li>
+		</ul>
+		<span class='clazz'>Crawler</span> performs all the tasks and
+		functions as required. The workflow of the crawl consists of the
+		following steps in sequence:
+		<ul>
+			<li>pre-configure simply the crawl, i.e., creating a directory
+				named data for containing database and crawled data, if such a
+				directory does not exist</li>
+			<li>load urls from database into <span class='clazz'>URLStore</span>
+			</li>
+			<li>create and start its four children threads</li>
+			<li>Register the shutdown handler thread</li>
+		</ul>
+		</p>
+	</section>
+	<section>
+		<h2>Usage</h2>
+		<div id="usage">
+			<kbd>
+				Usage: java -jar crawler [--url url_strings+] [--file files+])<br>
+				: --url specify the initial urls to be crawled<br> : --file
+				specify the files containing the initial urls to be crawled<br> :
+				Both --url and --file parameters can be omitted except that the
+				application is run for the first time."
+			</kbd>
+		</div>
+	</section>
+
+	<div>
+		<h2>Assumptions</h2>
+		<ul>
+			<li>URLs are stored in <a href="https://www.sqlite.org/">SQLite</a>
+				database. We assume that a large amounts of data can be efficiently
+				and correctly stored and access by SQLite.
+			</li>
+			<li><a href="http://jsoup.org/">Jsoup</a> is used to extract
+				urls from web content. We assume that Jsoup library can efficiently
+				and correctly extract urls from web content.</li>
+		</ul>
+	</div>
+	<div>
+		<h2>Limitations and Future Improvement</h2>
+		<ul>
+			<li>In this implementation, we fetch only text-based content,
+				e.g., html, txt, xml files. For other kind of content, e.g., images,
+				video or audio, etc, we will leave this for future work.</li>
+			<li>During runtime, urls are stored in a hash map where the keys
+				are the host names of the urls. In the future, we can consider more
+				complex data structures to access and store urls more efficiently.</li>
+			<li>For simplicity, we assign the url queue, the content queues
+				and the children threads with equal size. In the future, in order to
+				make best use of concurrency, it is better to assign these data with
+				different size.</li>
+			<li>When the program shuts down, we clear urls in the url queue
+				and waiting for other threads finishing. For content queues with
+				large size, the waiting may take longer time. In the future, we
+				should consider to offer the users with options to stop quickly. That
+				is to clean the content queues when the program shuts down.</li>
+		</ul>
+	</div>
+</body>
+</html>
