@@ -157,7 +157,6 @@ public class Crawler extends AbstractThread {
 		createChildThreads();
 
 		registerShutDownHandler();
-		threadMessage("finished");
 	}
 
 	public void registerShutDownHandler() {
@@ -168,7 +167,7 @@ public class Crawler extends AbstractThread {
 				threadMessage("Save to database");
 				SQLiteService.saveStore(store);
 				threadMessage("Save to database finished");
-				threadMessage("Now, the application can be safely shut down!");
+				threadMessage("Now, the crawler can be safely shut down!");
 			}
 		};
 
@@ -219,7 +218,7 @@ public class Crawler extends AbstractThread {
 		System.out.println("Usage: crawler [--url url_strings+]  [--file files+]");
 		System.out.println("     : --url specify the initial urls to be crawled");
 		System.out.println("     : --file specify the files containing the initial urls to be crawled");
-		System.out.println("     : Both --url and --file parameters can be omitted except that the application is run for the first time.");
+		System.out.println("     : Both --url and --file parameters can be omitted. In this case, the initial url is www.telenor.no");
 		List<String> parameters = new ArrayList<String>();
 		int paraFlag = 0;
 		for (int i = 0; i < args.length; i++) {
@@ -242,6 +241,8 @@ public class Crawler extends AbstractThread {
 			else
 				crawler.addUrlsFromFile(iter);
 		}
+		if(parameters.isEmpty())
+			crawler.getURLStore().addUrl("www.telenor.no");
 		new Thread(crawler, "Crawler").start();
 	}
 

@@ -147,8 +147,7 @@ body {
 				Usage: java -jar crawler [--url url_strings+] [--file files+])<br>
 				: --url specify the initial urls to be crawled<br> : --file
 				specify the files containing the initial urls to be crawled<br>
-				: Both --url and --file parameters can be omitted except that the
-				application is run for the first time."
+				: Both --url and --file parameters can be omitted. In this case, the initial url is "www.telenor.no".
 			</kbd>
 		</div>
 
@@ -176,6 +175,7 @@ body {
 			<li>We assume that memory allocation always successes. In other
 				words, it means that there is always enough memory available.</li>
 			<li>We assume that the internet access is available.</li>
+			<li>We assume that a url with www is different from the url without www.</li>
 		</ul>
 	</div>
 	<div>
@@ -187,6 +187,7 @@ body {
 			<li>During runtime, urls are stored in a hash map where the keys
 				are the host names of the urls. In the future, we can consider more
 				complex data structures to access and store urls more efficiently.</li>
+				<li>In this implementation, we did not consider using strategies to reduce redundancy. We will consider this problem in the future.</li>
 			<li>For simplicity, we assign the url queue, the content queues
 				and the children threads with equal size. In the future, in order to
 				make best use of concurrency, it is better to assign these data with

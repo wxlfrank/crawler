@@ -12,7 +12,7 @@ public abstract class ParentThread extends AbstractThread {
 			while (!unfinished.isEmpty()) {
 				try {
 					threadMessage("has " + unfinished.size() + " children threads to finish!");
-					unfinished.wait(WAIT_TIME);
+					unfinished.wait();
 				} catch (InterruptedException e) {
 				}
 			}
@@ -23,7 +23,7 @@ public abstract class ParentThread extends AbstractThread {
 		synchronized (unfinished) {
 			while (unfinished.size() > QUEUE_SIZE) {
 				try {
-					unfinished.wait(WAIT_TIME);
+					unfinished.wait();
 				} catch (InterruptedException e) {
 				}
 			}

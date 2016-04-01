@@ -3,6 +3,7 @@ package org.solution.crawler.threads;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
+import org.solution.crawler.log.LogService;
 import org.solution.crawler.persistent.FileService;
 
 /**
@@ -62,10 +63,16 @@ public class ContentSaver extends ParentThread {
 		}
 
 		public void run() {
-			FileService.save(content[0], content[1]);
-			synchronized (unfinished) {
-				unfinished.remove(ContentSaveThread.this);
-				unfinished.notifyAll();
+			try{
+				FileService.save(content[0], content[1]);
+			}catch(Exception e){
+				LogService.logException(e);
+			}
+			finally{
+				synchronized (unfinished) {
+					unfinished.remove(ContentSaveThread.this);
+					unfinished.notifyAll();
+				}
 			}
 		}
 

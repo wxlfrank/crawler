@@ -5,6 +5,7 @@ import java.util.concurrent.BlockingQueue;
 
 import org.solution.crawler.URLStore;
 import org.solution.crawler.http.HttpService;
+import org.solution.crawler.log.LogService;
 
 /**
  * The parent thread to extract urls from content
@@ -68,10 +69,20 @@ public class URLExtractor extends ParentThread {
 		}
 
 		public void run() {
-			HttpService.addExtractedUrls(store, content[0], HttpService.extractUrls(content[1]));
-			synchronized (unfinished) {
-				unfinished.remove(ExtractorThread.this);
-				unfinished.notifyAll();
+			try{
+				HttpService.addExtractedUrls(store, content[0], HttpService.extractUrls(content[1]));
+				synchronized (unfinished) {
+					unfinished.remove(ExtractorThread.this);
+					unfinished.notifyAll();
+				}
+			}catch(Exception e){
+				LogService.logException(e);
+			}
+			finally{
+				synchronized (unfinished) {
+					unfinished.remove(ExtractorThread.this);
+					unfinished.notifyAll();
+				}
 			}
 		}
 

@@ -1,10 +1,10 @@
 package org.solution.crawler.threads;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 import org.solution.crawler.http.HttpService;
+import org.solution.crawler.log.LogService;
 
 /**
  * The parent thread to fetch contents for urls
@@ -19,7 +19,6 @@ public class ContentFetcher extends ParentThread {
 	BlockingQueue<String> urlQueue;
 	BlockingQueue<String[]> forSavaer;
 	BlockingQueue<String[]> forExtractor;
-	List<Thread> unfinished = new ArrayList<Thread>();
 
 	public ContentFetcher(BlockingQueue<String> urls, BlockingQueue<String[]> forExtractor,
 			BlockingQueue<String[]> forSaver) {
@@ -55,7 +54,7 @@ public class ContentFetcher extends ParentThread {
 				waitChildrenFinish();
 				putToQueueUntilSuccess(forSavaer, url_content);
 				putToQueueUntilSuccess(forExtractor, url_content);
-			} else {
+			} else {				
 				waitForLessChildren();
 				Thread child = new ContentFetchThread(url, forExtractor, forSavaer, unfinished);
 				child.start();
@@ -89,15 +88,21 @@ public class ContentFetcher extends ParentThread {
 		}
 
 		public void run() {
-			Object obj = HttpService.fetchContent(url);
-			if (obj instanceof String) {
-				String[] url_content = new String[] { url, (String) obj };
-				putToQueueUntilSuccess(forSavor, url_content);
-				putToQueueUntilSuccess(forExtractor, url_content);
+			try{
+				Object obj = HttpService.fetchContent(url);
+				if (obj instanceof String) {
+					String[] url_content = new String[] { url, (String) obj };
+					putToQueueUntilSuccess(forSavor, url_content);
+					putToQueueUntilSuccess(forExtractor, url_content);
+				}
+			}catch(Exception e){
+				LogService.logException(e);
 			}
-			synchronized (unfinished) {
-				unfinished.remove(ContentFetchThread.this);
-				unfinished.notifyAll();
+			finally{
+				synchronized (unfinished) {
+					unfinished.remove(ContentFetchThread.this);
+					unfinished.notifyAll();
+				}
 			}
 		}
 

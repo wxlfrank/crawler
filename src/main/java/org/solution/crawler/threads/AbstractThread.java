@@ -4,19 +4,16 @@ import java.util.concurrent.BlockingQueue;
 
 public abstract class AbstractThread extends Thread {
 
-	public static int QUEUE_SIZE = 12;
+	public static int QUEUE_SIZE = 32;
 	public static long WAIT_TIME = 2000;
 
 	protected boolean interrupted = false;
 
 	public boolean waitThreadFinish(Thread thread) {
-		// long start = System.currentTimeMillis();
 		while (thread.isAlive()) {
 			try {
-				// if(System.currentTimeMillis() - start > 200000)
-				// return false;
 				threadMessage("waiting " + thread.getName() + " to finish");
-				thread.join(WAIT_TIME * 5);
+				thread.join();
 			} catch (InterruptedException e) {
 			}
 		}

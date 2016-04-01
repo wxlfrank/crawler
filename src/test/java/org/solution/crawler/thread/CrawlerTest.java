@@ -23,7 +23,7 @@ public class CrawlerTest extends TestCase {
 			store.addUrl(url);
 		crawler.createChildThreads();
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

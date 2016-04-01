@@ -34,7 +34,6 @@ public class URLFetcher extends AbstractThread {
 			 */
 			do {
 				url = store.getNextURL();
-//				System.out.println(url);
 				if (!url.isEmpty())
 					break;
 				synchronized (urlQueue) {
@@ -77,10 +76,10 @@ public class URLFetcher extends AbstractThread {
 			 * empty string into url queue. The empty string in url queue is a
 			 * signal to end the crawling
 			 */
-			if (interrupted) {
+			if (interrupted || Thread.interrupted()) {
 				threadMessage("is going to stop!");
 				synchronized (urlQueue) {
-					if(url.isEmpty() && urlQueue.isEmpty())
+					if(url.isEmpty() && urlQueue.size() < 2)
 						break;
 					for (String left : urlQueue) {
 						if (!left.isEmpty()){

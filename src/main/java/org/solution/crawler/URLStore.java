@@ -51,8 +51,11 @@ public class URLStore {
 	 */
 	public synchronized void addUrl(URL url) {
 		String host = url.getHost();
+		if(host.startsWith("www"))
+			host = host.substring(host.indexOf('.') + 1);
 		VisitHash urls = host2urls.get(host);
 		if (urls == null) {
+			host = url.getHost();
 			urls = new VisitHash();
 			host2urls.put(host, urls);
 			hosts.addUnvisited(host);
@@ -111,6 +114,8 @@ public class URLStore {
 		try {
 			URL url = new URL(url_string);
 			String host = url.getHost();
+			if(host.startsWith("www"))
+				host = host.substring(host.indexOf('.') + 1);
 			VisitHash urls = host2urls.get(host);
 			urls.setUnVisited(url_string);
 			if (hosts.isVisited(host))
