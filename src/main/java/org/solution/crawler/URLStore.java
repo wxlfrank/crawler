@@ -117,6 +117,10 @@ public class URLStore {
 			if(host.startsWith("www"))
 				host = host.substring(host.indexOf('.') + 1);
 			VisitHash urls = host2urls.get(host);
+			if(urls == null){
+				addUrl(url_string);
+				urls = host2urls.get(host);
+			}
 			urls.setUnVisited(url_string);
 			if (hosts.isVisited(host))
 				hosts.setUnVisited(host);
